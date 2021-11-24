@@ -26,7 +26,6 @@ SILENCIO equ 0x38
 NOTA_NUMERO equ 0x39
 
 START
-    
     MOVLW 0x07 ;Apagar comparadores
     MOVWF CMCON
     MOVLW b'10100000'
@@ -87,6 +86,46 @@ INITLCD
     CALL time
     BCF PORTA,1
     CALL time    
+    
+    BCF PORTA,0		
+    CALL time
+    MOVLW 0xC3	
+    MOVWF PORTB
+    CALL exec
+    
+    BSF PORTA,0		
+    CALL time
+    
+    MOVLW 'M'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'o'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'z'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'a'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'r'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 't'
+    MOVWF PORTB
+    CALL exec
+    MOVLW '-'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'P'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'S'
+    MOVWF PORTB
+    CALL exec
+    MOVLW 'N'
+    MOVWF PORTB
+    CALL exec
     
 INICIO:
     NOP
@@ -343,6 +382,8 @@ ISR:
     BCF INTCON, GIE
     DECFSZ CNT 
     GOTO Salto
+    
+    
     INCF NOTA_NUMERO
     
     ; SILENCIO / 0.3seg
@@ -461,14 +502,14 @@ ISR:
     MOVLW D'4'		; 50mS * 6 = 0.3 Sec.
     MOVWF CNT
     
-    ; RE / 0.55seg
+    ; RE2 / 0.55seg
     MOVFW NOTA_NUMERO
     XORLW 0x0A
     BTFSS STATUS,Z
     GOTO $+7
     
     BCF SILENCIO, 0
-    CALL RE
+    CALL RE2
     MOVLW D'195'	; preload value
     MOVWF TMR0
     MOVLW D'7'		; 50mS * 11 = 0.55 Sec.
@@ -922,6 +963,20 @@ ISR:
     MOVWF TMR0
     MOVLW D'4'		; 50mS * 11 = 0.55 Sec.
     MOVWF CNT
+    
+    ; SOL / 0.55 seg
+    MOVFW NOTA_NUMERO
+    XORLW 0x2D
+    BTFSS STATUS,Z
+    GOTO $+8
+    
+    BCF SILENCIO, 0
+    CALL SOL
+    MOVLW D'195'	; preload value
+    MOVWF TMR0
+    MOVLW D'7'		; 50mS * 11 = 0.55 Sec.
+    MOVWF CNT
+    CLRF NOTA_NUMERO
     
     Salto
     MOVWF TMR0
